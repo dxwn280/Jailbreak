@@ -52,9 +52,7 @@ async def map(ctx: commands.Context):
         if player_count > 0:
             message = 'Map: ' + map_info + ' | Players: ' + player_info
             await ctx.send(message)
-        if player_count < 0:
-            await ctx.send('Game is down, no players are currently online.')
-        else:
+        elif player_count == 0:
             message = 'Players: ' + player_info + '\nServer either has no players or gameme/server is down'
             await ctx.send(message)
 
