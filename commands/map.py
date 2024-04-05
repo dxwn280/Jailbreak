@@ -38,12 +38,15 @@ async def map(ctx: commands.Context):
     if ctx.guild is None:
         guild_name = "Private Messages"
     else:
-        guild_name = ctx.guild.name  # Access the name attribute to get the guild name
+        guild_name = ctx.guild.name  # Get guild name
+        guild_id = ctx.guild.id # Get guild id
+        guild_ownerid = ctx.guild.owner_id # Get owner of server id
+        guild_owner = ctx.guild.owner # Get owner name
 
     # Get the current timestamp in UTC
     current_time = discord.utils.utcnow().strftime('%Y-%m-%d %H:%M:%S')
 
-    detective_info = f'{current_time}: {ctx.author} ({ctx.author.id}) used the command: /map in ({guild_name})' #this is for the webhook
+    detective_info = f'~~~\n{current_time} \n{ctx.author} ({ctx.author.id}) Used the command: /map \nName: ({guild_name}) \nID: ({guild_id}) \nOwner: ({guild_owner}) \nID: ({guild_ownerid})' #this is for the webhook
 
     map_info, player_info = scrape_xml()  # Call scrape_xml() once and unpack the tuple
     if map_info is not None and player_info is not None:
