@@ -1,4 +1,5 @@
 {
 	"token": "your token",
-	"webhook": "discord webhook"
+	"webhook": "discord webhook",
+	"owner": "owner discord id"
 }
