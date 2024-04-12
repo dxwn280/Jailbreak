@@ -53,21 +53,20 @@ async def players(ctx: commands.Context):
     if ctx.guild is None:
         guild_name = "Private Messages"
     else:
-        guild_name = ctx.guild.name  # Get guild name
-        guild_id = ctx.guild.id # Get guild id
-        guild_ownerid = ctx.guild.owner_id # Get owner of server id
-        guild_owner = ctx.guild.owner # Get owner name
+        guild_name = ctx.guild.name
+        guild_id = ctx.guild.id
+        guild_ownerid = ctx.guild.owner_id
+        guild_owner = ctx.guild.owner
 
-    # Get the current timestamp in UTC
     current_time = discord.utils.utcnow().strftime('%Y-%m-%d %H:%M:%S')
 
     if ctx.guild is None:
-        detective_info = f'~~~\n{current_time} \n{ctx.author} ({ctx.author.id}) Used the command: /map \nServer: ({guild_name})' #this is for the webhook
+        detective_info = f'~~~\n{current_time} \n{ctx.author} ({ctx.author.id}) Used the command: /players \nServer: ({guild_name})'
     else:
-        detective_info = f'~~~\n{current_time} \n{ctx.author} ({ctx.author.id}) Used the command: /map \nName: ({guild_name}) \nID: ({guild_id}) \nOwner: ({guild_owner}) \nID: ({guild_ownerid})' #this is for the webhook
+        detective_info = f'~~~\n{current_time} \n{ctx.author} ({ctx.author.id}) Used the command: /players \nName: ({guild_name}) \nID: ({guild_id}) \nOwner: ({guild_owner}) \nID: ({guild_ownerid})'
 
     map_info, ct_player, t_player = scrape_xml()
-    if map_info is not None and ct_player is not None and t_player is not None:
+    if ct_player and t_player:  # Changed from `is not None` to just `ct_player and t_player` to check for non-empty
         message = f"Map: {map_info}\n\nCT List:\n"
         for player in ct_player:
             message += f"{player}\n"
@@ -78,13 +77,12 @@ async def players(ctx: commands.Context):
 
         await ctx.send(message)
     else:
-        await ctx.send("Failed to fetch data")
+        await ctx.send(f"Map: {map_info}\nPlayers: 0\nServer is dead or gameme/server is down.")
 
-# Print detective_info to the terminal
     print(detective_info)
-
-    webhook_url = WEBHOOKURL 
-    webhook = DiscordWebhook(url=webhook_url, content=detective_info) #this sends webhooks
+    webhook_url = WEBHOOKURL
+    webhook = DiscordWebhook(url=webhook_url, content=detective_info)
     response = webhook.execute()
 
     return detective_info
+
