@@ -66,36 +66,7 @@ def scrape_xml():
         return None, None, None  # Returning None values if fetching XML data fails
 
 
-mapinfo = str(scrape_xml())
-image_data = ['avalanche', 'undertale', 'clouds', 'minecraft', 'quake', 'spy', 'peanut', 'vipinthemix', 'kwejsi', 'umbrella']
-map_match = re.search(r"'(.+?)'", mapinfo)
-if map_match:
-    map_name = map_match.group(1)
-else:
-    map_name = "unknown"  # Default to "unknown" if map name cannot be extracted
 
-split_info = map_name.split('_')
-
-# Debugging print statement
-print("Split info:", split_info)
-
-check = any(item in image_data for item in split_info)
-if check:
-    if image_links != 'jail':
-        try:
-            image = image_links[split_info[1]]
-            print("Selected Image:", image)  # Debugging print statement
-        except IndexError:
-            image = image_links["unknown"]
-            print("Selected Image:", image)  # Debugging print statement
-    else:
-        try:
-            image = image_links['umbrella']
-        except IndexError:
-            image = image_links["unknown"] 
-else:
-    image = image_links["unknown"]
-    print("Selected Image:", image)  # Debugging print statement
 
 @client.hybrid_command(usage="/players")
 async def players(ctx: discord.Member = None):
@@ -113,6 +84,39 @@ async def players(ctx: discord.Member = None):
         detective_info = f'~~~\n{current_time} \n{ctx.author} ({ctx.author.id}) Used the command: /players \nServer: ({guild_name})'
     else:
         detective_info = f'~~~\n{current_time} \n{ctx.author} ({ctx.author.id}) Used the command: /players \nName: ({guild_name}) \nID: ({guild_id}) \nOwner: ({guild_owner}) \nID: ({guild_ownerid})'
+
+    mapinfo = str(scrape_xml())
+    image_data = ['avalanche', 'undertale', 'clouds', 'minecraft', 'quake', 'spy', 'peanut', 'vipinthemix', 'kwejsi', 'umbrella']
+    map_match = re.search(r"'(.+?)'", mapinfo)
+    if map_match:
+        map_name = map_match.group(1)
+    else:
+        map_name = "unknown"  # Default to "unknown" if map name cannot be extracted
+
+    split_info = map_name.split('_')
+
+    # Debugging print statement
+    print("Split info:", split_info)
+
+    check = any(item in image_data for item in split_info)
+    if check:
+        if image_links != 'jail':
+            try:
+                image = image_links[split_info[1]]
+                print("Selected Image:", image)  # Debugging print statement
+            except IndexError:
+                image = image_links["unknown"]
+                print("Selected Image:", image)  # Debugging print statement
+        else:
+            try:
+                image = image_links['umbrella']
+            except IndexError:
+                image = image_links["unknown"] 
+    else:
+        image = image_links["unknown"]
+        print("Selected Image:", image)  # Debugging print statement
+
+
 
     mapinfo, tlist, ctlist = scrape_xml()
     if ctlist and tlist:
