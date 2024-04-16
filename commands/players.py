@@ -141,6 +141,7 @@ async def players(ctx: discord.Member = None):
         elif len(tlist) % 3 == 2:
             tlist1 = tlist[:midpoint2] + tlist[midpoint2*3::2]
             tlist2 = tlist[midpoint2:midpoint2*2] + [tlist[midpoint2*3+1]]
+            tlist3 = tlist[midpoint2*2:midpoint2*3]
     
 
         embed = discord.Embed(
