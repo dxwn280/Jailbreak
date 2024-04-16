@@ -31,6 +31,7 @@ image_links = {
     "vipinthemix": "https://i.imgur.com/IB7E1d2.png",
     "kwejsi": "https://i.imgur.com/gza8kYA.png",
     "umbrella": "https://i.imgur.com/0HLqFuo.png",
+    "lego": "https://i.imgur.com/NmWHQK0.png",
     "unknown": "https://media.discordapp.net/attachments/1152808650436522045/1228862165105250325/video.gif?ex=662d9613&is=661b2113&hm=db8815275b4e99ae71163ce0640e050dd112579bb9adad4452455cc476f9a571&",
 }
 
@@ -43,6 +44,7 @@ def scrape_xml():
 
         # Find the <map> element
         mapinfo = root.find('.//server/map').text
+        playerinfo = root.find('.//server/act').text
 
         # Initialize empty lists for both teams
 
@@ -61,7 +63,7 @@ def scrape_xml():
                 tlist.append(player_name)
             # Optionally handle players without a team or with a different designation
 
-        return mapinfo, tlist, ctlist
+        return mapinfo, tlist, ctlist, playerinfo
     else:
         return None, None, None  # Returning None values if fetching XML data fails
 
@@ -86,27 +88,30 @@ async def players(ctx: discord.Member = None):
         detective_info = f'~~~\n{current_time} \n{ctx.author} ({ctx.author.id}) Used the command: /players \nName: ({guild_name}) \nID: ({guild_id}) \nOwner: ({guild_owner}) \nID: ({guild_ownerid})'
 
     mapinfo = str(scrape_xml())
-    image_data = ['avalanche', 'undertale', 'clouds', 'minecraft', 'quake', 'spy', 'peanut', 'vipinthemix', 'kwejsi', 'umbrella']
+    image_data = ['avalanche', 'undertale', 'clouds', 'minecraft', 'quake', 'spy', 'peanut', 'vipinthemix', 'kwejsi', 'umbrella', "lego"]
     map_match = re.search(r"'(.+?)'", mapinfo)
     if map_match:
         map_name = map_match.group(1)
     else:
-        map_name = "unknown"  # Default to "unknown" if map name cannot be extracted
+        map_name = "unknown"  # Default to "unknown" if map name not in pool
 
     split_info = map_name.split('_')
 
     # Debugging print statement
     print("Split info:", split_info)
 
-    check = any(item in image_data for item in split_info)
+    #this is stupid, need to come up with a better way
+    # need to find a way to just check WHAT item in split_info matches image_data,
+    # not whether or not there is anything matches
+    check = any(item in image_data for item in split_info) # this just returns true/false instead of what value in the subset is in the set
     if check:
-        if image_links != 'jail':
+        if image_links != 'jail': 
             try:
                 image = image_links[split_info[1]]
-                print("Selected Image:", image)  # Debugging print statement
+                print("Selected Image:", image)  # Debugging
             except IndexError:
                 image = image_links["unknown"]
-                print("Selected Image:", image)  # Debugging print statement
+                print("Selected Image:", image)  # Debugging
         else:
             try:
                 image = image_links['umbrella']
@@ -114,12 +119,11 @@ async def players(ctx: discord.Member = None):
                 image = image_links["unknown"] 
     else:
         image = image_links["unknown"]
-        print("Selected Image:", image)  # Debugging print statement
+        print("Selected Image:", image)  # Debugging
 
-
-
-    mapinfo, tlist, ctlist = scrape_xml()
-    if ctlist and tlist:
+    mapinfo, tlist, ctlist, playerinfo = scrape_xml()
+    
+    if playerinfo:
         midpoint1 = len(ctlist)//2
         midpoint2 = len(tlist)//3
     
@@ -149,6 +153,7 @@ async def players(ctx: discord.Member = None):
             url="https://cs2browser.com/connect/104.128.58.156:27015",
             timestamp=current_time
         )
+        embed.set_author(name=f"Players: {playerinfo}")
 
         embed.add_field(
             name="CT Players",
