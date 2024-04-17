@@ -114,7 +114,8 @@ async def players(ctx: discord.Member = None):
     else: #otherwise use the corresponding image from image_links
         index = split_info.index(check3)
         image = image_links[check3]
-
+    print(image)
+    
 
     #split t's into their teams
     mapinfo, tlist, ctlist, playerinfo = scrape_xml()
