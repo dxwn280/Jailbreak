@@ -102,10 +102,10 @@ async def players(ctx: discord.Member = None):
     print("Split info:", split_info) #debuging
     
     def intersection(image_data, split_info):
-    for value in split_info:
-        if value in image_data: # checks if split_info is a subset of image_data, if it is a subset
-            return value # it instantly returns the first value, this is just incase if two values of split_info match image_data (ex: jb_clouds_spy)
-    return None 
+        for value in split_info:
+            if value in image_data: # checks if split_info is a subset of image_data, if it is a subset
+                return value # it instantly returns the first value, this is just incase if two values of split_info match image_data (ex: jb_clouds_spy)
+        return None 
 
     check3 = intersection(image_data, split_info) # this gives me the actual value of what the subset matches with the set
     
