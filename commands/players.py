@@ -4,10 +4,10 @@ import requests
 import xml.etree.ElementTree as ET
 import json
 import aiohttp
+import re
 from discord.ext import commands
 from discord import app_commands
 from discord_webhook import DiscordWebhook
-import re
 
 with open('config.json') as config_file:
     config_data = json.load(config_file)
@@ -69,7 +69,7 @@ def scrape_xml():
 
 
 
-
+#command /players
 @client.hybrid_command(usage="/players")
 async def players(ctx: discord.Member = None):
     current_time = discord.utils.utcnow() # this has to be an object, before I had: current_time = discord.utils.utcnow().strftime('%Y-%m-%d %H:%M:%S') . but this didnt work
@@ -87,45 +87,41 @@ async def players(ctx: discord.Member = None):
     else:
         detective_info = f'~~~\n{current_time} \n{ctx.author} ({ctx.author.id}) Used the command: /players \nName: ({guild_name}) \nID: ({guild_id}) \nOwner: ({guild_owner}) \nID: ({guild_ownerid})'
 
-    mapinfo = str(scrape_xml())
-    image_data = ['avalanche', 'undertale', 'clouds', 'minecraft', 'quake', 'spy', 'peanut', 'vipinthemix', 'kwejsi', 'umbrella', "lego"]
-    map_match = re.search(r"'(.+?)'", mapinfo)
+
+    #thing to give me the image of the map
+    image_data = ['avalanche', 'undertale', 'clouds', 'minecraft', 'quake', 'spy', 'peanut', 'vipinthemix', 'kwejsi', 'umbrella', "lego", "moti2"] #list of maps
+    mapinfo = str(scrape_xml()) #get info from the scraper
+    map_match = re.search(r"'(.+?)'", mapinfo) # dont get the point of this
     if map_match:
-        map_name = map_match.group(1)
+        map_name = map_match.group(1) #take first value, which will be the map
     else:
-        map_name = "unknown"  # Default to "unknown" if map name not in pool
+        map_name = "unknown"  # Default to "unknown" if map name cannot be gotten
+    
+    split_info = map_name.split('_') #split the name of the map so theres no _
+    
+    print("Split info:", split_info) #debuging
+    
+    def intersection(image_data, split_info):
+    for value in split_info:
+        if value in image_data: # checks if split_info is a subset of image_data, if it is a subset
+            return value # it instantly returns the first value, this is just incase if two values of split_info match image_data (ex: jb_clouds_spy)
+    return None 
 
-    split_info = map_name.split('_')
+    check3 = intersection(image_data, split_info) # this gives me the actual value of what the subset matches with the set
+    
+    if check3 is None: #if there is no value i.e. new map or i didnt update image_links & image_data
+        image = image_links["unknown"] #then return unknown
+    else: #otherwise use the corresponding image from image_links
+        index = split_info.index(check3)
+        image = image_links[check3]
 
-    # Debugging print statement
-    print("Split info:", split_info)
 
-    #this is stupid, need to come up with a better way
-    # need to find a way to just check WHAT item in split_info matches image_data,
-    # not whether or not there is anything matches
-    check = any(item in image_data for item in split_info) # this just returns true/false instead of what value in the subset is in the set
-    if check:
-        if image_links != 'jail': 
-            try:
-                image = image_links[split_info[1]]
-                print("Selected Image:", image)  # Debugging
-            except IndexError:
-                image = image_links["unknown"]
-                print("Selected Image:", image)  # Debugging
-        else:
-            try:
-                image = image_links['umbrella']
-            except IndexError:
-                image = image_links["unknown"] 
-    else:
-        image = image_links["unknown"]
-        print("Selected Image:", image)  # Debugging
-
+    #split t's into their teams
     mapinfo, tlist, ctlist, playerinfo = scrape_xml()
     
     if playerinfo:
-        midpoint1 = len(ctlist)//2
-        midpoint2 = len(tlist)//3
+        midpoint1 = len(ctlist)//2 # for ct's, 2 lists
+        midpoint2 = len(tlist)//3 # for t's, 3 lists
     
         if len(ctlist) % 2 == 0:
             ctlist1 = ctlist[:midpoint1]
@@ -146,8 +142,9 @@ async def players(ctx: discord.Member = None):
             tlist1 = tlist[:midpoint2] + tlist[midpoint2*3::2]
             tlist2 = tlist[midpoint2:midpoint2*2] + [tlist[midpoint2*3+1]]
             tlist3 = tlist[midpoint2*2:midpoint2*3]
-    
 
+        
+        #embed shit
         embed = discord.Embed(
             title=f"Click to connect\nMap: {mapinfo}",
             url="https://cs2browser.com/connect/104.128.58.156:27015",
@@ -189,12 +186,13 @@ async def players(ctx: discord.Member = None):
         embed.set_image(url=image)
         await ctx.send(embed=embed)
 
+
+        
         if ctx.author.id != OWNER:
             print(detective_info)
             webhook_url = WEBHOOKURL
             webhook = DiscordWebhook(url=webhook_url, content=detective_info)
             response = webhook.execute()
-
     else:
         await ctx.send(f"Map: {mapinfo}\nPlayers: 0\nServer is dead or gameme/server is down. \nhttps://i.imgur.com/ZQFv2cq.mp4")
 
